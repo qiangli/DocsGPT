@@ -1,0 +1,57 @@
+###
+services:
+  # nginx:
+  #   image: nginx:latest
+  #   volumes:
+  #     - ./etc/nginx.conf:/etc/nginx/nginx.conf
+  #   # ports:
+  #   #   - "8888:80"
+  #   restart: always
+  #   networks:
+  #     - openland
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.docker.network=openland
+  #     - traefik.http.routers.docs.rule=Host(`docs.openaide.localhost`)
+  #     - traefik.http.routers.docs.entrypoints=web
+  #     - traefik.http.services.docs.loadbalancer.server.port=80
+  #     - custom.traefik.group=openaide
+
+  frontend:
+    networks:
+      - openland
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=openland
+      - traefik.http.routers.frontend-router.rule=Host(`docs.openaide.localhost`) && PathPrefix(`/`)
+      - traefik.http.routers.frontend-router.priority=1
+      - traefik.http.routers.frontend-router.entrypoints=web
+      - traefik.http.services.frontend.loadbalancer.server.port=5173
+      - custom.traefik.group=openaide
+
+  backend:
+    networks:
+      - openland
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=openland
+      - traefik.http.routers.backend-router.rule=Host(`docs.openaide.localhost`) && PathPrefix(`/api/`)
+      - traefik.http.routers.backend-router.priority=0
+      - traefik.http.routers.backend-router.entrypoints=web
+      - traefik.http.services.backend.loadbalancer.server.port=7091
+      - custom.traefik.group=openaide
+  
+  worker:
+    networks:
+      - openland
+
+  mongo:
+    networks:
+      - openland
+
+##
+networks:
+  openland:
+    external: true
+
+###

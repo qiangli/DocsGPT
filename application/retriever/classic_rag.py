@@ -21,7 +21,7 @@ class ClassicRAG(BaseRetriever):
     ):
         self.question = question
         self.vectorstore = source['active_docs'] if 'active_docs' in source else None
-        self.chat_history = chat_history
+        self.chat_history = chat_history if chat_history else []
         self.prompt = prompt
         self.chunks = chunks
         self.gpt_model = gpt_model
@@ -78,8 +78,13 @@ class ClassicRAG(BaseRetriever):
         if len(self.chat_history) > 1:
             tokens_current_history = 0
             # count tokens in history
-            self.chat_history.reverse()
-            for i in self.chat_history:
+            if isinstance(self.chat_history, list):
+                history = self.chat_history
+            else:
+                print(f"invalid history {self.chat_history}")
+                history = []
+            history.reverse()
+            for i in history:
                 if "prompt" in i and "response" in i:
                     tokens_batch = num_tokens_from_string(i["prompt"]) + num_tokens_from_string(
                         i["response"]
